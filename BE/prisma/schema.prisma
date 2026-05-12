@@ -9,7 +9,7 @@ datasource db {
 }
 
 model User {
-  id_username String  @id @db.VarChar(255)
+  id_username Int  @id @default(autoincrement()) 
   email       String  @unique @db.VarChar(255)
   password    String  @db.VarChar(255)
   phone       String? @db.VarChar(20)
@@ -49,7 +49,7 @@ model CourseSession {
 }
 
 model Teaching {
-  id_user   String
+  id_user   Int
   id_course Int
 
   user   User   @relation(fields: [id_user], references: [id_username])
@@ -74,7 +74,7 @@ model Student {
 
 model Enrollment {
   id_enrollment Int    @id @default(autoincrement())
-  status        String @db.VarChar(50) // e.g. "active", "inactive"
+  status   String @db.VarChar(50) // e.g. "active", "inactive"
 
   student   Student @relation(fields: [studentId], references: [id_student])
   studentId Int

@@ -8,7 +8,7 @@ const isLogin = (req: Request, res: Response, next: NextFunction) => {
 
 // Middleware kiểm tra quyền admin
 const isAdmin = (req: Request, res: Response, next: NextFunction) => {
-  const user = req.user;
+  const user = (req as any).user;
   if (user?.role === 'admin') {
     next();
   } else {
@@ -18,7 +18,7 @@ const isAdmin = (req: Request, res: Response, next: NextFunction) => {
 
 // Middleware kiểm tra quyền teacher
 const isTeacher = (req: Request, res: Response, next: NextFunction) => {
-  const user = req.user;
+  const user = (req as any).user;
   if (user?.role === 'teacher' || user?.role === 'admin') {
     next();
   } else {
