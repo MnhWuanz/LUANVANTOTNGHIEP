@@ -1,0 +1,104 @@
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id_username String  @id @db.VarChar(255)
+  email       String  @unique @db.VarChar(255)
+  password    String  @db.VarChar(255)
+  phone       String? @db.VarChar(20)
+  role        String  @db.VarChar(50) // e.g. "teacher", "admin"
+
+  teachings Teaching[]
+
+  @@map("users")
+}
+
+model Course {
+  id_course  Int      @id @default(autoincrement())
+  code       String   @unique @db.VarChar(50)
+  name       String   @db.VarChar(255)
+  start_date DateTime @db.Date
+  end_date   DateTime @db.Date
+
+  teachings   Teaching[]
+  sessions    CourseSession[]
+  enrollments Enrollment[]
+
+  @@map("courses")
+}
+
+model CourseSession {
+  id_session Int      @id @default(autoincrement())
+  date       DateTime @db.Date
+  start_time DateTime @db.Time
+  end_time   DateTime @db.Time
+
+  course   Course @relation(fields: [courseId], references: [id_course])
+  courseId Int
+
+  attendances Attendance[]
+
+  @@map("sessions")
+}
+
+model Teaching {
+  id_user   String
+  id_course Int
+
+  user   User   @relation(fields: [id_user], references: [id_username])
+  course Course @relation(fields: [id_course], references: [id_course])
+
+  @@id([id_user, id_course])
+  @@map("teachings")
+}
+
+model Student {
+  id_student Int     @id @default(autoincrement())
+  code       String  @unique @db.VarChar(50)
+  name       String  @db.VarChar(255)
+  email      String  @unique @db.VarChar(255)
+  class      String  @db.VarChar(100)
+  face_url   String? @db.VarChar(500)
+
+  enrollments Enrollment[]
+
+  @@map("students")
+}
+
+model Enrollment {
+  id_enrollment Int    @id @default(autoincrement())
+  status        String @db.VarChar(50) // e.g. "active", "inactive"
+
+  student   Student @relation(fields: [studentId], references: [id_student])
+  studentId Int
+
+  course   Course @relation(fields: [courseId], references: [id_course])
+  courseId Int
+
+  attendances Attendance[]
+
+  @@unique([studentId, courseId])
+  @@map("enrollments")
+}
+
+model Attendance {
+  id_attendance Int       @id @default(autoincrement())
+  check_in_time DateTime? @db.Time
+  status        String    @db.VarChar(50) // e.g. "present", "absent", "late"
+
+  session   CourseSession @relation(fields: [sessionId], references: [id_session])
+  sessionId Int
+
+  enrollment   Enrollment @relation(fields: [enrollmentId], references: [id_enrollment])
+  enrollmentId Int
+
+  @@unique([sessionId, enrollmentId])
+  @@map("attendances")
+}
