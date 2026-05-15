@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import 'dotenv/config';
 import { loginService } from 'services/auth.service';
+import { tokenBlacklist } from 'config/tokenBlacklist';
 
 const login = async (req: Request, res: Response) => {
   try {
@@ -35,6 +36,13 @@ const login = async (req: Request, res: Response) => {
 // @route POST /api/auth/logout
 const logout = (req: Request, res: Response) => {
   try {
+    // Lấy token từ header và thêm vào blacklist
+    const authHeader = req.headers['authorization'];
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      const token = authHeader.split(' ')[1];
+      tokenBlacklist.addToBlacklist(token);
+    }
+
     // Clear the token cookie
     res.clearCookie('token', {
       httpOnly: true,
@@ -45,8 +53,8 @@ const logout = (req: Request, res: Response) => {
     res.json({
       message: 'Đăng xuất thành công',
     });
+    
   } catch (error) {
-    console.error('Logout error:', error);
     res.status(500).json({
       message: 'Lỗi server khi đăng xuất',
     });

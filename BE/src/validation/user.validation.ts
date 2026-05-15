@@ -12,7 +12,11 @@ export const createUserSchema = z.object({
 export const updateUserSchema = z.object({
   email: z.string().email('Email không hợp lệ').optional(),
   phone: z.string().max(20).optional(),
-  role: z.enum(['admin', 'teacher']).optional(),
+  role: z
+    .enum(['admin', 'teacher'], {
+      errorMap: () => ({ message: 'Role phải là admin hoặc teacher' }),
+    })
+    .optional(),
 });
 
 export type CreateUserInput = z.infer<typeof createUserSchema>;
