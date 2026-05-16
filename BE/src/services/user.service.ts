@@ -25,6 +25,30 @@ const getAllUsers = async () => {
   });
 };
 
+const searchUsersByRole = async (role: string) => {
+  const total_items = await prisma.user.count({
+    where: { role },
+  });
+  const users = await prisma.user.findMany({
+    where: { role },
+    select: {
+      id: true,
+      email: true,
+      role: true,
+      name: true,
+      code: true,
+      phone: true,
+      face_url: true,
+      class: true,
+    },
+    orderBy: { id: 'asc' },
+  });
+  return {
+    users,
+    total_items,
+  };
+};
+
 // Lấy 1 user theo id
 const getUserById = async (id: number) => {
   return prisma.user.findUnique({
@@ -74,4 +98,5 @@ export const UserService = {
   createUser,
   updateUser,
   deleteUser,
+  searchUsersByRole,
 };

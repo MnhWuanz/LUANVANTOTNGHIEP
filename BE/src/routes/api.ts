@@ -232,6 +232,42 @@ const apiRoutes = (app: Express) => {
    */
   router.delete('/users/:id', isLogin, isAdmin, UserController.remove);
 
+  /**
+   * @swagger
+   * /api/users/search:
+   *   get:
+   *     summary: Tìm kiếm user theo vai trò (chỉ admin)
+   *     tags: [Users]
+   *     security:
+   *       - bearerAuth: []
+   *     parameters:
+   *       - in: query
+   *         name: role
+   *         required: true
+   *         schema:
+   *           type: string
+   *         example: teacher
+   *     responses:
+   *       200:
+   *         description: Tìm kiếm thành công
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 success:
+   *                   type: boolean
+   *                 data:
+   *                   type: array
+   *                   items:
+   *                     $ref: '#/components/schemas/User'
+   *       400:
+   *         description: Dữ liệu không hợp lệ
+   *       404:
+   *         description: Không tìm thấy user
+   */
+  router.post('/users/search', isLogin, UserController.searchUsersByRole);
+
   // ==================== LOGIN ROUTES ====================
   /**
    * @swagger

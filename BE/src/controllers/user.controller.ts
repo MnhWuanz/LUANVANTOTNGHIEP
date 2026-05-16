@@ -86,7 +86,7 @@ const update = async (req: ReqWithId, res: Response) => {
 };
 
 // DELETE /api/users/:id
-const remove = async (req: ReqWithId, res: Response) => {
+const remove = async (req: Request, res: Response) => {
   try {
     const id = +req.params.id;
     await UserService.deleteUser(id);
@@ -100,4 +100,20 @@ const remove = async (req: ReqWithId, res: Response) => {
   }
 };
 
-export const UserController = { getAll, getOne, create, update, remove };
+const searchUsersByRole = async (req: ReqWithId, res: Response) => {
+  try {
+    const { role } = req.body as { role: string };
+    const { users, total_items } = await UserService.searchUsersByRole(role);
+    res.json({ success: true, data: users, total_items });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Lỗi server' });
+  }
+};
+export const UserController = {
+  getAll,
+  getOne,
+  create,
+  update,
+  remove,
+  searchUsersByRole,
+};

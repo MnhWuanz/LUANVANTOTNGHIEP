@@ -17,6 +17,8 @@
       "services/*": ["./src/services/*"],
       "validation/*": ["./src/validation/*"],
       "types/*": ["./src/types/*"]
+      
     }
-  }
+  },
+  "include": ["src/**/*"]
 }
