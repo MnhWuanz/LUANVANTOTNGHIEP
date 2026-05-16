@@ -5,33 +5,35 @@ import { CreateUserInput, UpdateUserInput } from 'validation/user.validation';
 const prisma = new PrismaClient();
 const SALT_ROUNDS = 10;
 
-// Lấy tất cả user (không trả về password)
+// Các field được phép trả về (không bao gồm password)
+const USER_SELECT = {
+  id: true,
+  email: true,
+  role: true,
+  name: true,
+  code: true,
+  phone: true,
+  face_url: true,
+  class: true,
+} as const;
+
+// Lấy tất cả user
 const getAllUsers = async () => {
   return prisma.user.findMany({
-    select: {
-      id_username: true,
-      email: true,
-      phone: true,
-      role: true,
-    },
-    orderBy: { id_username: 'asc' },
+    select: USER_SELECT,
+    orderBy: { id: 'asc' },
   });
 };
 
 // Lấy 1 user theo id
-const getUserById = async (id_username: number) => {
+const getUserById = async (id: number) => {
   return prisma.user.findUnique({
-    where: { id_username },
-    select: {
-      id_username: true,
-      email: true,
-      phone: true,
-      role: true,
-    },
+    where: { id },
+    select: USER_SELECT,
   });
 };
 
-// Tạo user mới (id_username tự động autoincrement)
+// Tạo user mới
 const createUser = async (data: CreateUserInput) => {
   const hashedPassword = await bcrypt.hash(data.password, SALT_ROUNDS);
 
@@ -39,36 +41,30 @@ const createUser = async (data: CreateUserInput) => {
     data: {
       email: data.email,
       password: hashedPassword,
-      phone: data.phone,
       role: data.role,
+      name: data.name,
+      code: data.code,
+      phone: data.phone,
+      face_url: data.face_url,
+      class: data.class,
     },
-    select: {
-      id_username: true,
-      email: true,
-      phone: true,
-      role: true,
-    },
+    select: USER_SELECT,
   });
 };
 
 // Cập nhật user
-const updateUser = async (id_username: number, data: UpdateUserInput) => {
+const updateUser = async (id: number, data: UpdateUserInput) => {
   return prisma.user.update({
-    where: { id_username },
+    where: { id },
     data,
-    select: {
-      id_username: true,
-      email: true,
-      phone: true,
-      role: true,
-    },
+    select: USER_SELECT,
   });
 };
 
 // Xoá user
-const deleteUser = async (id_username: number) => {
+const deleteUser = async (id: number) => {
   return prisma.user.delete({
-    where: { id_username },
+    where: { id },
   });
 };
 

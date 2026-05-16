@@ -9,13 +9,23 @@ datasource db {
 }
 
 model User {
-  id_username Int  @id @default(autoincrement()) 
-  email       String  @unique @db.VarChar(255)
-  password    String  @db.VarChar(255)
-  phone       String? @db.VarChar(20)
-  role        String  @db.VarChar(50) // e.g. "teacher", "admin"
+  id       Int     @id @default(autoincrement())
+  email    String  @unique @db.VarChar(255)
+  password String  @db.VarChar(255)
+  role     String  @db.VarChar(50) // "admin" | "teacher" | "student"
 
-  teachings Teaching[]
+  // Thông tin chung
+  name     String  @db.VarChar(255)
+  code     String? @unique @db.VarChar(50) // mã GV hoặc mã SV (admin không có)
+  phone    String? @db.VarChar(20)
+  face_url String? @db.VarChar(500)
+
+  // Chỉ student mới có
+  class    String? @db.VarChar(100)
+
+  // Relations
+  teachings   Teaching[]   // teacher dạy môn học
+  enrollments Enrollment[] // student đăng ký môn học
 
   @@map("users")
 }
@@ -49,49 +59,36 @@ model CourseSession {
 }
 
 model Teaching {
-  id_user   Int
-  id_course Int
+  userId   Int
+  courseId Int
 
-  user   User   @relation(fields: [id_user], references: [id_username])
-  course Course @relation(fields: [id_course], references: [id_course])
+  user   User   @relation(fields: [userId], references: [id])
+  course Course @relation(fields: [courseId], references: [id_course])
 
-  @@id([id_user, id_course])
+  @@id([userId, courseId])
   @@map("teachings")
-}
-
-model Student {
-  id_student Int     @id @default(autoincrement())
-  code       String  @unique @db.VarChar(50)
-  name       String  @db.VarChar(255)
-  email      String  @unique @db.VarChar(255)
-  class      String  @db.VarChar(100)
-  face_url   String? @db.VarChar(500)
-
-  enrollments Enrollment[]
-
-  @@map("students")
 }
 
 model Enrollment {
   id_enrollment Int    @id @default(autoincrement())
-  status   String @db.VarChar(50) // e.g. "active", "inactive"
+  status        String @db.VarChar(50) // "active" | "inactive"
 
-  student   Student @relation(fields: [studentId], references: [id_student])
-  studentId Int
+  user   User @relation(fields: [userId], references: [id])
+  userId Int
 
   course   Course @relation(fields: [courseId], references: [id_course])
   courseId Int
 
   attendances Attendance[]
 
-  @@unique([studentId, courseId])
+  @@unique([userId, courseId])
   @@map("enrollments")
 }
 
 model Attendance {
   id_attendance Int       @id @default(autoincrement())
   check_in_time DateTime? @db.Time
-  status        String    @db.VarChar(50) // e.g. "present", "absent", "late"
+  status        String    @db.VarChar(50) // "present" | "absent" | "late"
 
   session   CourseSession @relation(fields: [sessionId], references: [id_session])
   sessionId Int
